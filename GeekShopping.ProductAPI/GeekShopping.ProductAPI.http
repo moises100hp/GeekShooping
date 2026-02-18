@@ -1,0 +1,18 @@
+@GeekShopping.ProductAPI_HostAddress = http://localhost:5231/api/product
+
+GET {{GeekShopping.ProductAPI_HostAddress}}/getAll/
+Accept: application/json
+
+GET {{GeekShopping.ProductAPI_HostAddress}}/get/
+Accept: application/json
+
+POST {{GeekShopping.ProductAPI_HostAddress}}/create/
+Accept: application/json
+
+PUT {{GeekShopping.ProductAPI_HostAddress}}/update/
+Accept: application/json
+
+DELETE {{GeekShopping.ProductAPI_HostAddress}}/delete/
+Accept: application/json
+
+###
