@@ -1,33 +1,59 @@
 ﻿using GeekShopping.Web.Models;
 using GeekShopping.Web.Services.IServices;
+using GeekShopping.Web.Utils;
 
 namespace GeekShopping.Web.Services
 {
     public class ProductService : IProductService
     {
-        public Task<IEnumerable<ProductModel>> FindAllProducts()
+        private readonly HttpClient _client;
+        public const string BasePath = "http://localhost:5231/api/v1/product";
+
+        public ProductService(HttpClient httpClient)
         {
-            throw new NotImplementedException();
+            _client = httpClient;
         }
 
-        public Task<ProductModel> FindProductById(long id)
+        public async Task<IEnumerable<ProductModel>> FindAllProducts()
         {
-            throw new NotImplementedException();
+            var response = await _client.GetAsync(BasePath);
+
+            return await response.ReadContextAs<List<ProductModel>>();
         }
 
-        public Task<ProductModel> CreateProduct(ProductModel model)
+        public async Task<ProductModel> FindProductById(long id)
         {
-            throw new NotImplementedException();
+            var response = await _client.GetAsync($"{BasePath}/{id}");
+
+            return await response.ReadContextAs<ProductModel>();
         }
 
-        public Task<ProductModel> UpdateProduct(ProductModel model)
+        public async Task<ProductModel> CreateProduct(ProductModel model)
         {
-            throw new NotImplementedException();
+            var response = await _client.PostAsJson(BasePath, model);
+
+            if (response.IsSuccessStatusCode)
+                return await response.ReadContextAs<ProductModel>();
+            else throw new Exception("Something went wrong when calling API");
         }
 
-        public Task<bool> DeleteProductById(long id)
+        public async Task<ProductModel> UpdateProduct(ProductModel model)
         {
-            throw new NotImplementedException();
+
+            var response = await _client.PutAsJson(BasePath, model);
+
+            if (response.IsSuccessStatusCode)
+                return await response.ReadContextAs<ProductModel>();
+            else throw new Exception("Something went wrong when calling API");
+        }
+
+        public async Task<bool> DeleteProductById(long id)
+        {
+            var response = await _client.DeleteAsync($"{BasePath}/{id}");
+
+            if (response.IsSuccessStatusCode)
+                return await response.ReadContextAs<bool>();
+            else throw new Exception("Something went wrong when calling API");
         }
     }
 }

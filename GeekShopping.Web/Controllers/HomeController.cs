@@ -1,21 +1,35 @@
 using GeekShopping.Web.Models;
+using GeekShopping.Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace GeekShopping.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IProductService _productService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, 
+            IProductService productService)
         {
             _logger = logger;
+            _productService = productService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var products = await _productService.FindAllProducts();
+
+            return View(products);
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _productService.FindProductById(id);   
+
+            return View(product);
         }
 
         public IActionResult Privacy()
