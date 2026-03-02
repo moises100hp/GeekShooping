@@ -20,6 +20,8 @@ namespace GeekShopping.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
+            Console.WriteLine($"Diretório de execução: {Directory.GetCurrentDirectory()}");
+
             var products = await _productService.FindAllProducts();
 
             return View(products);
@@ -30,6 +32,23 @@ namespace GeekShopping.Web.Controllers
             var product = await _productService.FindProductById(id);   
 
             return View(product);
+        }
+
+        [HttpPost]
+        [ActionName("Details")]
+        public async Task<IActionResult> DetailsPost(ProductViewModel model)
+        { 
+
+            CartViewModel cart = new()
+            {
+                CartHeader = new CartHeaderViewModel
+                {
+                    UserId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value,
+
+                }
+            };
+
+            return View();
         }
 
         public IActionResult Privacy()

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Servidor MySQL único para todos os serviços
+  db-server:
+    image: mysql:8.0
+    container_name: mysql-geek-shopping
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ssw0rd
+    ports:
+      - "3306:3306"
+    networks:
+      - geek-shopping-network
+
+  # API de Produtos
+  product-api:
+    build:
+      context: .
+      dockerfile: GeekShopping.ProductAPI/Dockerfile
+    container_name: product-api
+    environment:
+      - MySQlConnection__MySQlConnectionString=Server=db-server;DataBase=geek_shopping_product_api;Uid=root;Pwd=P@ssw0rd
+    depends_on:
+      - db-server
+    networks:
+      - geek-shopping-network
+
+  # API de Carrinho (Cart)
+  cart-api:
+    build:
+      context: .
+      dockerfile: GeekShopping.CartAPI/Dockerfile
+    container_name: cart-api
+    environment:
+      - MySQlConnection__MySQlConnectionString=Server=db-server;DataBase=geek_shopping_cart_api;Uid=root;Pwd=P@ssw0rd
+    depends_on:
+      - db-server
+    networks:
+      - geek-shopping-network
+
+  # API de Cupons (Coupon) - Exemplo do terceiro serviço
+  coupon-api:
+    build:
+      context: .
+      dockerfile: GeekShopping.CouponAPI/Dockerfile
+    container_name: coupon-api
+    environment:
+      - MySQlConnection__MySQlConnectionString=Server=db-server;DataBase=geek_shopping_coupon_api;Uid=root;Pwd=P@ssw0rd
+    depends_on:
+      - db-server
+    networks:
+      - geek-shopping-network
+
+networks:
+  geek-shopping-network:
+    driver: bridge

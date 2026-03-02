@@ -7,4 +7,7 @@
     <Project Path="GeekShopping.IdentityServer/GeekShopping.IdentityServer.csproj" Id="9a9a7b81-e2fe-4280-bceb-3e94492357a0" />
     <Project Path="GeekShopping.ProductAPI/GeekShopping.ProductAPI.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
 </Solution>
