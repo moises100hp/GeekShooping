@@ -3,6 +3,7 @@ using GeekShopping.IdentityServer.Configuration;
 using GeekShopping.IdentityServer.Models;
 using GeekShopping.IdentityServer.Models.Context;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GeekShopping.IdentityServer.Initializer
@@ -24,7 +25,9 @@ namespace GeekShopping.IdentityServer.Initializer
 
         public void Initialize()
         {
-            if(_role.FindByNameAsync(IdentityConfiguration.Admin).Result != null) return;
+             _context.Database.MigrateAsync();
+            
+            if (_role.FindByNameAsync(IdentityConfiguration.Admin).Result != null) return;
 
             _role.CreateAsync(new IdentityRole(
                 IdentityConfiguration.Admin)).GetAwaiter().GetResult();
