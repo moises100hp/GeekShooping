@@ -17,9 +17,36 @@ namespace GeekShopping.CartAPI.Repository
             _mapper = mapper;
         }
 
-        public Task<bool> ApplyCupon(string userId, long cuponCode)
+        public async Task<bool> ApplyCupon(string userId, string couponCode)
         {
-            throw new NotImplementedException();
+            var header = await _context.CartHeaders
+                       .FirstOrDefaultAsync(c => c.UserId.Equals(userId));
+
+            if (header != null)
+            {
+                header.CuponCode = couponCode;
+                _context.CartHeaders.Update(header);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> RemoveCupon(string userId)
+        {
+            var header = await _context.CartHeaders
+                       .FirstOrDefaultAsync(c => c.UserId.Equals(userId));
+
+            if (header != null)
+            {
+                header.CuponCode = "";
+                _context.CartHeaders.Update(header);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<bool> ClearCart(string userId)
@@ -43,10 +70,12 @@ namespace GeekShopping.CartAPI.Repository
 
         public async Task<CartVO> FindCartByUserId(string userId)
         {
+            var result = await _context.CartHeaders
+                                    .AsNoTracking().FirstOrDefaultAsync(c => c.UserId == userId);
+
             Cart cart = new()
             {
-                CartHeader = _context.CartHeaders
-                                    .AsNoTracking().FirstOrDefault(c => c.UserId == userId)
+                CartHeader = result
             };
 
             cart.CartDetails = _context.CartDetails.Where(
@@ -54,11 +83,6 @@ namespace GeekShopping.CartAPI.Repository
             ).Include(c => c.Product);
 
             return _mapper.Map<CartVO>(cart);
-        }
-
-        public async Task<bool> RemoveCupon(string userId)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> RemoveFromCart(long cartDetailsId)

@@ -6,7 +6,6 @@ using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Test;
 using GeekShopping.IdentityServer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -53,12 +52,17 @@ public class Index : PageModel
         _roleManager = roleManager;
     }
 
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
+
     public async Task<IActionResult> OnGet(string? returnUrl)
     {
         await BuildModelAsync(returnUrl);
-            
+        
         if (View.IsExternalLoginOnly)
         {
+            ReturnUrl = returnUrl;
+
             // we only have one option for logging in and it's an external provider
             return RedirectToPage("/ExternalLogin/Challenge", new { scheme = View.ExternalLoginScheme, returnUrl });
         }
@@ -68,6 +72,8 @@ public class Index : PageModel
         
     public async Task<IActionResult> OnPost()
     {
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+
         // check if we are in the context of an authorization request
         var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 

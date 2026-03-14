@@ -1,12 +1,8 @@
-// Copyright (c) Duende Software. All rights reserved.
-// See LICENSE in the project root for license information.
-
-using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Test;
-using Microsoft.AspNetCore.Authentication;
+using GeekShopping.IdentityServer.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity; // Adicionado
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -16,7 +12,9 @@ namespace GeekShopping.IdentityServer.Pages.Create;
 [AllowAnonymous]
 public class Index : PageModel
 {
-    private readonly TestUserStore _users;
+    // 1. Trocamos TestUserStore pelos serviços do ASP.NET Identity
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
 
     [BindProperty]
@@ -24,12 +22,12 @@ public class Index : PageModel
 
     public Index(
         IIdentityServerInteractionService interaction,
-        TestUserStore? users = null)
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
-        // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-        _users = users ?? throw new InvalidOperationException("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
-            
         _interaction = interaction;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     public IActionResult OnGet(string? returnUrl)
@@ -37,82 +35,51 @@ public class Index : PageModel
         Input = new InputModel { ReturnUrl = returnUrl };
         return Page();
     }
-        
+
     public async Task<IActionResult> OnPost()
     {
-        // check if we are in the context of an authorization request
         var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 
-        // the user clicked the "cancel" button
         if (Input.Button != "create")
         {
             if (context != null)
             {
-                // if the user cancels, send a result back into IdentityServer as if they 
-                // denied the consent (even if this client does not require consent).
-                // this will send back an access denied OIDC error response to the client.
                 await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
-
-                // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                if (context.IsNativeClient())
-                {
-                    // The client is native, so this change in how to
-                    // return the response is for better UX for the end user.
-                    return this.LoadingPage(Input.ReturnUrl);
-                }
-
                 return Redirect(Input.ReturnUrl ?? "~/");
             }
-            else
-            {
-                // since we don't have a valid context, then we just go back to the home page
-                return Redirect("~/");
-            }
+            return Redirect("~/");
         }
 
-        if (_users.FindByUsername(Input.Username) != null)
-        {
-            ModelState.AddModelError("Input.Username", "Invalid username");
-        }
-
+        // 2. Lógica de criação usando o banco de dados
         if (ModelState.IsValid)
         {
-            var user = _users.CreateUser(Input.Username, Input.Password, Input.Name, Input.Email);
-
-            // issue authentication cookie with subject ID and username
-            var isuser = new IdentityServerUser(user.SubjectId)
+            var user = new ApplicationUser
             {
-                DisplayName = user.Username
+                UserName = Input.Username,
+                Email = Input.Email,
+                EmailConfirmed = true,
+                FirstName = Input.Name, // Ajuste conforme as propriedades do seu ApplicationUser
+                LastName = ""
             };
 
-            await HttpContext.SignInAsync(isuser);
+            var result = await _userManager.CreateAsync(user, Input.Password);
 
-            if (context != null)
+            if (result.Succeeded)
             {
-                if (context.IsNativeClient())
-                {
-                    // The client is native, so this change in how to
-                    // return the response is for better UX for the end user.
-                    return this.LoadingPage(Input.ReturnUrl);
-                }
+                // Adiciona claims básicas se necessário
+                // await _userManager.AddClaimsAsync(user, new List<Claim> { ... });
 
-                // we can trust Input.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                return Redirect(Input.ReturnUrl ?? "~/");
-            }
+                // Faz o login automático após criar
+                await _signInManager.SignInAsync(user, isPersistent: false);
 
-            // request for a local page
-            if (Url.IsLocalUrl(Input.ReturnUrl))
-            {
-                return Redirect(Input.ReturnUrl);
-            }
-            else if (string.IsNullOrEmpty(Input.ReturnUrl))
-            {
+                if (context != null) return Redirect(Input.ReturnUrl ?? "~/");
+                if (Url.IsLocalUrl(Input.ReturnUrl)) return Redirect(Input.ReturnUrl);
                 return Redirect("~/");
             }
-            else
+
+            foreach (var error in result.Errors)
             {
-                // user might have clicked on a malicious link - should be logged
-                throw new ArgumentException("invalid return URL");
+                ModelState.AddModelError(string.Empty, error.Description);
             }
         }
 

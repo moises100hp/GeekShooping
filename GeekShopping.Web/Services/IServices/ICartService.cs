@@ -4,15 +4,15 @@ namespace GeekShopping.Web.Services.IServices
 {
     public interface ICartService
     {
-        Task<CartViewModel> FindCartByUserId(string userId);
-        Task<CartViewModel> AddItemToCart(CartViewModel cart);
-        Task<CartViewModel> UpdateCart(CartViewModel cart);
-        Task<bool> RemoveFromCart(long cartId);
+        Task<CartViewModel> FindCartByUserId(string userId, string token);
+        Task<CartViewModel> AddItemToCart(CartViewModel cart, string token);
+        Task<CartViewModel> UpdateCart(CartViewModel cart, string token);
+        Task<bool> RemoveFromCart(long cartId, string token);
 
-        Task<bool> ApplyCupon(CartViewModel cart, string cuponCode);
-        Task<bool> RemoveCupon(string userId);
+        Task<bool> ApplyCupon(CartViewModel cart,  string token);
+        Task<bool> RemoveCupon(string userId, string token);
 
-        Task<bool> ClearCart(string userId);
-        Task<bool> Checkout(CartHeaderViewModel cartHeader);
+        Task<bool> ClearCart(string userId, string token);
+        Task<bool> Checkout(CartHeaderViewModel cartHeader, string token);
     }
 }

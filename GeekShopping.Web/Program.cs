@@ -26,6 +26,10 @@ builder.Services.AddAuthentication(options =>
     options.ClientId = "geek_shopping";
     options.ClientSecret = "secret";
     options.ResponseType = "code"; // Fluxo de código puro
+    options.ClaimActions.MapJsonKey("role", "role", "role");
+    options.ClaimActions.MapJsonKey("sub", "sub", "sub");
+    options.TokenValidationParameters.NameClaimType = "name";
+    options.TokenValidationParameters.RoleClaimType = "role";
 
     options.SaveTokens = true;
     options.GetClaimsFromUserInfoEndpoint = true;
@@ -117,6 +121,9 @@ builder.Services.AddHttpClient<IProductService, ProductService>(c =>
 
 builder.Services.AddHttpClient<ICartService, CartService>(c =>
     c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CartAPI"]));
+
+builder.Services.AddHttpClient<ICouponService, CouponService>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CouponAPI"]));
 
 var app = builder.Build();
 
