@@ -23,7 +23,12 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+		<PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\GeekShopping.MessageBus\GeekShopping.MessageBus.csproj" />
 	</ItemGroup>
 
 </Project>

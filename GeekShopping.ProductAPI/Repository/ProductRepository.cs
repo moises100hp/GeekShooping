@@ -17,9 +17,10 @@ namespace GeekShopping.ProductAPI.Repository
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductVO>> FindAll()
+        public async Task<List<ProductVO>> FindAll()
         {
-            List<Product> products = await _context.Products.AsNoTracking().ToListAsync();
+            IEnumerable<Product> products = _context.Products.AsNoTracking();
+
             return _mapper.Map<List<ProductVO>>(products);
         }
 
@@ -44,7 +45,7 @@ namespace GeekShopping.ProductAPI.Repository
 
         public async Task<ProductVO> Update(ProductVO vo)
         {
-            if(vo == null) return null;
+            if (vo == null) return null;
 
             Product product = _mapper.Map<Product>(vo);
             _context.Products.Update(product);
