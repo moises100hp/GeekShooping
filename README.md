@@ -22,6 +22,15 @@ O projeto foi construído utilizando as ferramentas mais atuais do mercado para 
 
 ---
 
+### Diagrama de Arquitetura
+
+Aqui está o fluxo completo de como os serviços e a infraestrutura interagem:
+
+![Fluxo de Dados Avançado na Aplicação Geek Shopping](https://replicate.delivery/xpbkg/H8sJ6W5qNf1R0G4M5S6T7Y8U9V0W1X2Y3Z4A5B6C7D8E/output.png)
+
+---
+
+
 ## 📂 Estrutura do Projeto
 
 Abaixo, a descrição de cada componente da solução:
