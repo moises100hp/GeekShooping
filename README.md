@@ -43,6 +43,8 @@ Abaixo, a descrição de cada componente da solução:
 | **GeekShopping.CouponAPI** | Gerenciamento e validação de cupons de desconto. |
 | **GeekShopping.IdentityServer** | Centralizador de identidade, logins e tokens de acesso. |
 | **GeekShopping.MessageBus** | Implementação genérica para integração com RabbitMQ. |
+| **GeekShopping.Email** | Logica para envio de Email geração do pedido. (Em Construção) |
+| **GeekShopping.PaymentAPI** | Logica para processamento do pagamento do pedido. (Em Construção)  |
 
 ---
 
