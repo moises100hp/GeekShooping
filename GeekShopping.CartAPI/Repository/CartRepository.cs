@@ -78,7 +78,7 @@ namespace GeekShopping.CartAPI.Repository
                 CartHeader = result
             };
 
-            cart.CartDetails = _context.CartDetails.Where(
+            cart.CartDetails =  _context.CartDetails.Where(
                 c => c.CartHeaderId == cart.CartHeader.Id
             ).Include(c => c.Product);
 
